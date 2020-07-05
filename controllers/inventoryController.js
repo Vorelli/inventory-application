@@ -1,5 +1,5 @@
 exports.index = function (req, res, next) {
-  res.send('Index UNDONE');
+  res.render('index', { title: 'Inventory' })
 };
 
 exports.itemCreateGet = function (req, res, next) {
