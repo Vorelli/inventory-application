@@ -1,5 +1,22 @@
+var mongoose = require('mongoose');
+var async = require('async');
+var Item = mongoose.model('Item');
+var Shipment = mongoose.model('Shipment');
+
 exports.index = function (req, res, next) {
-  res.render('index', { title: 'Inventory' })
+  var getInventory = {
+    item: function (cb) {
+      Item.find(cb);
+    }
+  };
+
+  var afterGet = function (err, results) {
+    if (err) return next(err);
+    if (results.item == null) return next(err);
+    res.render('index', { title: 'Inventory', inventory: results.item });
+  };
+
+  async.parallel(getInventory, afterGet);
 };
 
 exports.itemCreateGet = function (req, res, next) {
@@ -11,7 +28,30 @@ exports.itemCreatePut = function (req, res, next) {
 };
 
 exports.itemView = function (req, res, next) {
-  res.send('Item ' + req.params.id + ' View UNDONE');
+  const getItemAndShipment = {
+    item: function (cb) {
+      if (req.params.id.length !== 24) {
+        res.redirect('/');
+        return;
+      }
+      Item.findById(req.params.id).exec(cb);
+    },
+    shipment: function (cb) {
+      console.log('looking for shipment....');
+      Shipment.find({ items: req.params.id }).exec(cb);
+    }
+  };
+  const afterGet = function (err, results) {
+    console.log('finsihed get');
+    if (err) next(err);
+    if (results.item == null || results.item === undefined) res.redirect('/');
+    res.render('itemView', {
+      title: 'View Item',
+      item: results.item,
+      shipment: results.shipment
+    });
+  };
+  async.parallel(getItemAndShipment, afterGet);
 };
 
 exports.itemUpdateGet = function (req, res, next) {

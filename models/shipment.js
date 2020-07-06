@@ -3,7 +3,8 @@ var Schema = mongoose.Schema;
 
 var ShipmentSchema = Schema({
   date: { type: Date, required: true },
-  items: { type: Array }
+  items: [mongoose.Types.ObjectId],
+  itemQuantities: [Number]
 });
 
 ShipmentSchema.virtual('url').get(function () {

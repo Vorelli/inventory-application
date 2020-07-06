@@ -1,5 +1,11 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  .content
+    ul
+      each item in inventory
+        li.productWrapper
+          a(href=item.url)
+            .item
+              img(src='/images/' + item.name + '.jpg')
+              p= item.name

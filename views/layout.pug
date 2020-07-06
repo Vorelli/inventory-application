@@ -5,9 +5,21 @@ html
     link(rel='stylesheet', href='/stylesheets/style.css')
   body
     div.header
-      div.headerBlock='Inventory Application'
+      div.headerBlock
+        h1= 'Inventory Application'
       div.headerLinks
-        div.headerLink Home
+        div.headerLink
+          a(href='/') Home
         div.headerLink Inventory
+          .inventoryDropDown
+            a(href='/inventory/')
+              div View
+            a(href='/inventory/item/create')
+              div Create
         div.headerLink Shipments
+          .shipmentsDropDown
+            a(href='/shipments/') 
+              div View
+            a(href='/shipments/create')
+              div Create
     block content

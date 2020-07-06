@@ -1,16 +1,139 @@
+/* http://meyerweb.com/eric/tools/css/reset/ 
+	v2.0 | 20110126
+	License: none (public domain)
+	Changed from CSS to SASS
+	*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video
+	margin: 0
+	padding: 0
+	border: 0
+	font-size: 100%
+	font: inherit
+	vertical-align: baseline
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section
+	display: block
+
 body
-  padding: 50px
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif
+	line-height: 1
+
+ol, ul 
+	list-style: none
+
+blockquote, q
+	quotes: none
+
+blockquote:before, blockquote:after, q:before, q:after
+	content: ''
+	content: none
+
+table
+	border-collapse: collapse
+	border-spacing: 0
+
+body
+	padding: 50px
+	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif
 
 a
-  color: #00B7FF
+	color: black
+	text-decoration: none
+
+h1
+	font-size: 200%
+	line-height: 200%
+
+div.headerLink
+	font-size: 150%
+	line-height: 200%
+
+div.inventoryDropDown, div.shipmentsDropDown
+	width: 100%
+	height: auto
+	background-color: grey
+	display: none
+
+div.headerLink:hover div
+	display: block
 
 div.header
 	position: fixed
+	z-index: 100
 	text-align: center
-	width: 50%
-	margin: 0% 25%
+	background-color: grey
+	left: 0px
+	top: 0px
+	min-width: 60%
+	margin: 0% 20%
+	height: 150px
 	div.headerLink
-		width: 33%
+		width: 33.33%
 		float: left
-		margin: 0
+		margin: 30px 0px
+
+div.content
+	text-align: center
+	width: 60%
+	margin: 0% 20%
+	margin-top: 120px
+	height: auto
+	display: flex
+	flex-wrap: wrap
+	justify-content: flex-start
+	ul
+		list-style-type: none
+		padding: 0
+		width: 100%
+		li.productWrapper:nth-last-child(-n + 1)
+			border-right: 0.5px solid grey
+			margin-top: -1px
+		li.productWrapper:nth-last-child(-n + 4)
+			border-bottom: 0.5px solid grey
+		li.productWrapper:nth-child(4n)
+			border-right: 0.5px solid grey
+		li.productWrapper
+			display: table-cell
+			border-top: 0.5px solid grey
+			border-left: 0.5px solid grey
+			position: relative
+			marker: none
+			list-style: none
+			float: left
+			width: 24.5%
+	div.item
+		width: 100%
+		height: 300px
+		text-align: center
+		padding-bottom: 0px
+		img
+			max-width: -moz-available
+			max-width: -webkit-fill-available
+			text-align: center
+			height: 75%
+			display: block
+			margin: auto
+
+.itemDisplay
+	img
+		max-width: 1000px
+		max-height: 600px
+		margin: 20px 0px
+	.itemDescription
+		text-align: left
+
+.itemView
+	width: 100%
+	height: auto
+	.leftPanel
+		width: 50%
+		float: left
+		height: 1000px
+		img
+			max-width: 100%
+	.rightPanel
+		width: 50%
+		float: right
+		div
+			margin: 20px 0px
