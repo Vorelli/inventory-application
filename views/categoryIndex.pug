@@ -1,0 +1,10 @@
+extends layout
+
+block content
+  .content
+    .title
+      h1= title
+    ul.categories
+      each parentCategory in categories
+        li
+          a(href= parentCategory.url)= parentCategory.name

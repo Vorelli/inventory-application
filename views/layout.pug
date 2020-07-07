@@ -8,8 +8,12 @@ html
       div.headerBlock
         h1= 'Inventory Application'
       div.headerLinks
-        div.headerLink
-          a(href='/') Home
+        div.headerLink Categories
+          .categoryDropDown
+            a(href='/inventory/categories')
+              div View
+            a(href='/inventory/categories/create')
+              div Create
         div.headerLink Inventory
           .inventoryDropDown
             a(href='/inventory/')

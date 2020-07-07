@@ -1,0 +1,21 @@
+extends layout
+
+block content
+  .content
+    .title
+      h1= title
+    form(method='POST' action='')
+      .formGroup
+        label(for='name') Name:
+        input(type='text' name='name' placeholder='Name' value = name!=undefined ? name : '')
+      .formGroup
+        label(for='parentCategory') Parent Category:
+        select(name="parentCategory")
+          option(value=null, selected = selected!= undefined && selected==null ? 'True' : 'False') None
+          each category in categories
+            option(value=category.id selected= selected && category.id == selected ? 'True' : 'False')= category.name
+      button(type='submit') Create
+  if errors
+    ul.errors
+      each error in errors
+        li= error

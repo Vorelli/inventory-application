@@ -1,0 +1,25 @@
+extends layout
+
+block content
+  .content
+    .back
+      if(category.parentCategory)
+        a(href=category.parentCategory.url)
+          h1= category.parentCategory.name
+      else
+        a(href='/inventory/categories')
+          h1 Home
+    .halfTitle
+      h1= title
+    .spacer
+    ul.categories
+      each category in categories
+        li
+          a(href= category.url)= category.name
+    ul
+      each item in items
+        li.productWrapper
+          a(href= item.url)
+            .item
+              img(src='/images/' + item.name + '.jpg')
+              p= item.name

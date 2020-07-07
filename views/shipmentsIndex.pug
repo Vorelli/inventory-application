@@ -1,0 +1,22 @@
+extends layout
+
+block content
+  .content
+    .title
+      h1= title
+    table
+      tbody
+        tr
+          td ID
+          td Date
+          td Number of unique items
+          td Total number of items
+        each shipment in shipments
+          tr
+            td
+              a(href=shipment.url)
+                strong #{shipment._id}
+            td= shipment.dateFormatted
+            td= shipment.items.length
+            - var sum = 0; for(let i = 0; i < shipment.itemQuantities.length; i++) sum+=shipment.itemQuantities[i];
+            td= sum

@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  .content
+    .title
+      h1= title
+    table
+      tbody
+        tr
+          td Item
+          td Item Quantity
+        - console.log(shipment.items);
+        each item, index in shipment.items
+          tr 
+            td
+              a(href=item.url)= item.name
+            td= shipment.itemQuantities[index]

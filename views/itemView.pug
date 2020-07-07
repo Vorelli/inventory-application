@@ -15,10 +15,17 @@ block content
         .rightPanel
           .price= '$' + item.price
           .inStock= 'In Stock: ' + item.inStock
+          .categories(style='margin-bottom: 0px')= 'Categories: '
+          each category, index in item.categories
+            a(href=category.url)= category.name
+            if(index != item.categories.length-1)
+              span= ', '
+            else
+              .blank
           - shipment.sort(function(a, b) { var dateA = a.date; var dateB = b.date; return (a > b) ? 1 : (a < b) ? -1 : 0 })
           - shipment = shipment[0]
           if(item.inStock == 0 && shipment != null)
             .moreInStock(style='color: red')= 'More in stock: ' 
-              a(href=shipment.url)= shipment.date
+              a(href=shipment.url)= shipment.dateFormatted
       .itemDescription
         | !{item.description.replace(/[ ]p[ ]/g, '<p>').replace(/ \/p /g, '</p>').replace(/ ul /g, '<ul>').replace(/ \/ul /g, '</ul><br>').replace(/ li /g, '<li>').replace(/ \/li /g, '</li>')}

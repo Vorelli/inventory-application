@@ -41,6 +41,10 @@ a
 	color: black
 	text-decoration: none
 
+strong
+	font-weight: bold
+	
+
 h1
 	font-size: 200%
 	line-height: 200%
@@ -49,7 +53,7 @@ div.headerLink
 	font-size: 150%
 	line-height: 200%
 
-div.inventoryDropDown, div.shipmentsDropDown
+div.inventoryDropDown, div.shipmentsDropDown, div.categoryDropDown
 	width: 100%
 	height: auto
 	background-color: grey
@@ -77,15 +81,29 @@ div.content
 	text-align: center
 	width: 60%
 	margin: 0% 20%
-	margin-top: 120px
+	margin-top: 110px
 	height: auto
 	display: flex
 	flex-wrap: wrap
 	justify-content: flex-start
+	.back
+		text-align: left
+	.back, .spacer
+		width: 25%
+	.back, .title
+		float: left
+	.title
+		width: 100%
+	.halfTitle
+		width: 50%
+	ul.categories, ul.errors
+		list-style-type: disc
+		margin: 20px
 	ul
 		list-style-type: none
 		padding: 0
 		width: 100%
+		text-align: left
 		li.productWrapper:nth-last-child(-n + 1)
 			border-right: 0.5px solid grey
 			margin-top: -1px
@@ -137,3 +155,19 @@ div.content
 		float: right
 		div
 			margin: 20px 0px
+
+table
+	width: 100%
+	border: 1px solid grey
+	tr
+		border-bottom: 1px solid grey
+		td
+			padding: 5px
+
+form
+	.formGroup
+		text-align: left
+		margin: 10px 0px
+	.category
+		.subCategory
+			margin-left: 20px
