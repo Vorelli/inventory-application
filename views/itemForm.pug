@@ -4,7 +4,7 @@ block content
   .content
     .title
       h1= title
-    form(method='POST' action='')
+    form(method='POST' action='' enctype='multipart/form-data')
       .formGroup
         label(for='name') Name:
         input(type='text' name='name' placeholder='Product Name' value = item ? item.name : '')
@@ -13,10 +13,10 @@ block content
         input(type='text' name='description' placeholder='Description' value= item ? item.description : '')
       .formGroup
         label(for='price') Price (in USD):
-        input(type='number' step='0.01' value=item ? item.price : 0.00)
+        input(type='number' step='0.01' name='price' value=item ? item.price : 0.00)
       .formGroup
         label(for='inStock') In stock (Currently in warehouse):
-        input(type='number' min=0 value = item ? item.inStock : 0)
+        input(type='number' min=0 value = item ? item.inStock : 0 name='inStock')
       .formGroup
         label(for='picture') Picture (must be JPG):
         input(type='file' name='picture' accept='.jpg' value = picture ? picture : null)
@@ -38,7 +38,7 @@ block content
               - var subCategories = categories.filter(category => category.parentCategory == parentCategory)
               each subCategory in subCategories
                 - var subsubCategories = categories.filter(category => category.parentCategory == subCategory)
-      button(type='submit') Submit
+      button(type='submit')= item ? 'Update' : 'Create'
     if errors
       ul
         each error in errors

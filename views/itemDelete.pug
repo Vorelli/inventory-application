@@ -1,0 +1,12 @@
+extends layout
+
+block content
+  .content
+    .title
+      h1= title
+    div(style='color: red;width: 100%; text-align: center')= 'Are you sure you want to delete ' + item.name + '?'
+    form(method='POST' action='').delete
+      .formGroup
+        input(type='hidden' name='itemid' required='true' value=item._id)
+      .formGroup
+        button(type='submit') Delete

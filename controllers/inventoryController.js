@@ -6,6 +6,7 @@ var Shipment = mongoose.model('Shipment');
 var Category = mongoose.model('Category');
 const { validationResult, body } = require('express-validator/check');
 const { sanitizeBody } = require('express-validator/filter');
+var fs = require('fs');
 
 exports.index = function (req, res, next) {
   var getInventory = {
@@ -39,9 +40,70 @@ exports.itemCreateGet = function (req, res, next) {
   async.parallel(getCategories, afterGet);
 };
 
-exports.itemCreatePut = function (req, res, next) {
-  res.send('Item create PUT UNDONE');
-};
+exports.itemCreatePost = [
+  (req, res, next) => {
+    if (!(req.body.category instanceof Array)) {
+      if (typeof req.body.category === 'undefined') req.body.category = [];
+      else req.body.category = new Array(req.body.category);
+    }
+    next();
+  },
+
+  sanitizeBody('name').escape(),
+  sanitizeBody('price').escape(),
+  sanitizeBody('inStock').escape(),
+
+  body('name', 'Product name is required.').trim().isLength({ min: 1 }),
+  body('description', 'Product description is required.')
+    .trim()
+    .isLength({ min: 1 }),
+  body('price')
+    .trim()
+    .isLength({ min: 1 })
+    .withMessage('Price is required.')
+    .isNumeric({ min: 0.01 })
+    .withMessage('Price must be greater than 0.'),
+
+  async (req, res, next) => {
+    const errors = validationResult(req);
+    var item = new Item({
+      name: req.body.name,
+      description: req.body.description,
+      price: req.body.price,
+      inStock: req.body.inStock,
+      categories: req.body.category
+    });
+
+    if (!errors.isEmpty()) {
+      const getCategories = {
+        categories: function (cb) {
+          Category.find().exec(cb);
+        }
+      };
+
+      const afterGet = function (err, results) {
+        if (err) next(err);
+        results.categories.forEach((category) => {
+          if (item.categories.indexOf(category._id) !== -1) {
+            category.checked = true;
+          }
+        });
+        res.render('itemForm', {
+          title: 'Create Item',
+          categories: results.categories,
+          item: item,
+          errors: errors.array()
+        });
+      };
+      async.parallel(getCategories, afterGet);
+    } else {
+      item.save(function (err, theItem) {
+        if (err) next(err);
+        res.redirect(item.url);
+      });
+    }
+  }
+];
 
 exports.itemView = function (req, res, next) {
   const getItemAndShipment = {
@@ -70,19 +132,132 @@ exports.itemView = function (req, res, next) {
 };
 
 exports.itemUpdateGet = function (req, res, next) {
-  res.send('Item ' + req.params.id + ' Update GET UNDONE');
+  const getItemAndCategories = {
+    item: function (cb) {
+      Item.findById(req.params.id).exec(cb);
+    },
+    categories: function (cb) {
+      Category.find(cb);
+    }
+  };
+
+  const afterGet = function (err, results) {
+    if (err) next(err);
+    if (results.item == null || results.item === undefined) {
+      res.redirect('/inventory');
+    }
+    results.categories.forEach((category) => {
+      if (results.item.categories.indexOf(category._id) !== -1) {
+        category.checked = 'True';
+      }
+    });
+    res.render('itemForm', {
+      title: 'Update Item',
+      categories: results.categories,
+      item: results.item
+    });
+  };
+
+  async.parallel(getItemAndCategories, afterGet);
 };
 
-exports.itemUpdatePut = function (req, res, next) {
-  res.send('Item ' + req.params.id + ' Update POST UNDONE');
-};
+exports.itemUpdatePut = [
+  (req, res, next) => {
+    if (!(req.body.category instanceof Array)) {
+      if (typeof req.body.category === 'undefined') req.body.category = [];
+      else req.body.category = new Array(req.body.category);
+    }
+    next();
+  },
+
+  sanitizeBody('name').escape(),
+  sanitizeBody('price').escape(),
+  sanitizeBody('inStock').escape(),
+
+  body('name', 'Product name is required.').trim().isLength({ min: 1 }),
+  body('description', 'Product description is required.')
+    .trim()
+    .isLength({ min: 1 }),
+  body('price')
+    .trim()
+    .isLength({ min: 1 })
+    .withMessage('Price is required.')
+    .isNumeric({ min: 0.01 })
+    .withMessage('Price must be greater than 0.'),
+
+  async (req, res, next) => {
+    const errors = validationResult(req);
+
+    var newItem = new Item({
+      name: req.body.name,
+      description: req.body.description,
+      price: req.body.price,
+      inStock: req.body.inStock,
+      categories: req.body.category,
+      _id: req.params.id
+    });
+
+    if (!errors.isEmpty()) {
+      const getCategories = {
+        categories: function (cb) {
+          Category.find().exec(cb);
+        }
+      };
+
+      const afterGet = function (err, results) {
+        if (err) next(err);
+        results.categories.forEach((category) => {
+          if (newItem.categories.indexOf(category._id) !== -1) {
+            category.checked = true;
+          }
+        });
+
+        res.render('itemForm', {
+          title: 'Update Item',
+          categories: results.categories,
+          item: newItem,
+          errors: errors.array()
+        });
+      };
+
+      async.parallel(getCategories, afterGet);
+    } else {
+      const oldItem = await Item.findById(req.params.id);
+      Item.findByIdAndUpdate(req.params.id, newItem, {}, function (
+        err,
+        theItem
+      ) {
+        if (err) next(err);
+        if (!req.body.picture) {
+          fs.renameSync(
+            'public/images/' + oldItem.name + '.jpg',
+            'public/images/' + req.body.name + '.jpg'
+          );
+        }
+        res.redirect(theItem.url);
+      });
+    }
+  }
+];
 
 exports.itemDeleteGet = function (req, res, next) {
-  res.send('Item ' + req.params.id + ' Delete GET UNDONE');
+  const getItem = {
+    item: function (cb) {
+      Item.findById(req.params.id).exec(cb);
+    }
+  };
+  const afterGet = function (err, results) {
+    if (err) next(err);
+    res.render('itemDelete', { title: 'Delete Item', item: results.item });
+  };
+  async.parallel(getItem, afterGet);
 };
 
 exports.itemDeletePut = function (req, res, next) {
-  res.send('Item ' + req.params.id + ' Delete POST UNDONE');
+  Item.findByIdAndDelete(req.body.itemid, function (err) {
+    if (err) next(err);
+    res.redirect('/inventory');
+  });
 };
 
 exports.categoryViewAll = function (req, res, next) {
@@ -156,7 +331,6 @@ exports.categoryCreatePut = [
     } else {
       category.save(function (err) {
         if (err) next(err);
-        console.log(category);
         res.redirect(category.url);
       });
     }

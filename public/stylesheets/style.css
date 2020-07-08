@@ -162,6 +162,11 @@ table {
     table tr td {
       padding: 5px; }
 
+form.delete {
+  width: 100%; }
+  form.delete .formGroup {
+    text-align: center !important; }
+
 form .formGroup {
   text-align: left;
   margin: 10px 0px; }

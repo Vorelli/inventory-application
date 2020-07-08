@@ -1,5 +1,16 @@
 var express = require('express');
 var router = express.Router();
+var multer = require('multer');
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'public/images');
+  },
+  filename: async function (req, file, cb) {
+    await req.body.name;
+    cb(null, req.body.name + '.jpg');
+  }
+});
+var upload = multer({ storage: storage });
 
 const inventoryController = require('../controllers/inventoryController');
 
@@ -20,7 +31,11 @@ router.get('/', inventoryController.index);
 router.get('/item/create', inventoryController.itemCreateGet);
 // create item get
 
-router.post('/item/create', inventoryController.itemCreatePut);
+router.post(
+  '/item/create',
+  upload.single('picture'),
+  inventoryController.itemCreatePost
+);
 // create item put
 
 router.get('/item/:id', inventoryController.itemView);
@@ -29,7 +44,11 @@ router.get('/item/:id', inventoryController.itemView);
 router.get('/item/:id/update', inventoryController.itemUpdateGet);
 // update item get
 
-router.post('/item/:id/update', inventoryController.itemUpdatePut);
+router.post(
+  '/item/:id/update',
+  upload.single('picture'),
+  inventoryController.itemUpdatePut
+);
 // update item put
 
 router.get('/item/:id/delete', inventoryController.itemDeleteGet);
