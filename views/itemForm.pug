@@ -40,7 +40,7 @@ block content
                 - var subsubCategories = categories.filter(category => category.parentCategory == subCategory)
       button(type='submit')= item ? 'Update' : 'Create'
     if errors
-      ul
+      ul.errors
         each error in errors
           li!= error.msg
   script(src="/javascripts/filter.js")

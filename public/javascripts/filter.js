@@ -5,12 +5,6 @@ const filterText = form.querySelector('input#_filter');
 function filter() {
   var re = new RegExp(filterText.value.toUpperCase());
   categories.forEach((category) => {
-    console.log(
-      re,
-      category,
-      category.querySelector('label').textContent,
-      re.test(category.querySelector('label').textContent.toUpperCase())
-    );
     if (re.test(category.querySelector('label').textContent.toUpperCase())) {
       category.querySelector('label').style.visibility = 'initial';
       category.querySelector('label').style.position = 'initial';

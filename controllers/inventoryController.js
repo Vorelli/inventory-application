@@ -99,7 +99,7 @@ exports.itemCreatePost = [
     } else {
       item.save(function (err, theItem) {
         if (err) next(err);
-        res.redirect(item.url);
+        else res.redirect(item.url);
       });
     }
   }
@@ -119,7 +119,6 @@ exports.itemView = function (req, res, next) {
     }
   };
   const afterGet = function (err, results) {
-    console.log('finsihed get');
     if (err) next(err);
     if (results.item == null || results.item === undefined) res.redirect('/');
     res.render('itemView', {
@@ -228,7 +227,10 @@ exports.itemUpdatePut = [
         theItem
       ) {
         if (err) next(err);
-        if (!req.body.picture) {
+        if (
+          !req.body.picture &&
+          fs.existsSync('public/images/' + oldItem.name + '.jpg')
+        ) {
           fs.renameSync(
             'public/images/' + oldItem.name + '.jpg',
             'public/images/' + req.body.name + '.jpg'
@@ -241,23 +243,74 @@ exports.itemUpdatePut = [
 ];
 
 exports.itemDeleteGet = function (req, res, next) {
-  const getItem = {
+  const getItemAndShipments = {
     item: function (cb) {
       Item.findById(req.params.id).exec(cb);
+    },
+    shipments: function (cb) {
+      Shipment.find({ items: req.params.id }).exec(cb);
     }
   };
   const afterGet = function (err, results) {
     if (err) next(err);
-    res.render('itemDelete', { title: 'Delete Item', item: results.item });
+    res.render('itemDelete', {
+      title: 'Delete Item',
+      item: results.item,
+      shipments: results.shipments
+    });
   };
-  async.parallel(getItem, afterGet);
+  async.parallel(getItemAndShipments, afterGet);
 };
 
 exports.itemDeletePut = function (req, res, next) {
-  Item.findByIdAndDelete(req.body.itemid, function (err) {
+  const getShipmentsAndItem = {
+    shipments: function (cb) {
+      Shipment.find({ items: req.body.itemid }).exec(cb);
+    },
+    item: function (cb) {
+      Item.findById(req.body.itemid).exec(cb);
+    }
+  };
+
+  const afterGet = function (err, results) {
     if (err) next(err);
-    res.redirect('/inventory');
-  });
+    else if (results.item == null || results.item === undefined) {
+      res.redirect('/inventory');
+    } else if (results.shipments == null || results.shipments === undefined) {
+      Item.findByIdAndDelete(req.body.itemid, (err) => {
+        if (err) next(err);
+        else res.redirect('/inventory');
+      });
+    } else {
+      let error = null;
+      results.shipments.forEach((shipment) => {
+        for (let i = 0; i < shipment.items.length; i++) {
+          if (shipment.items[i] || shipment.items[i]._id === req.body.itemid) {
+            shipment.items.splice(i, 1);
+            shipment.itemQuantities.splice(i, 1);
+          }
+        }
+        Shipment.findByIdAndUpdate(shipment._id, shipment, (err) => {
+          if (err) {
+            error = err;
+            next(err);
+          }
+        });
+      });
+      if (error == null) {
+        if (fs.existsSync('public/images/' + results.item.name + '.jpg')) {
+          fs.unlinkSync('public/images/' + results.item.name + '.jpg');
+        }
+        Item.findByIdAndDelete(req.body.itemid, (err) => {
+          if (err) next(err);
+          else res.redirect('/inventory');
+        });
+      } else {
+        res.redirect('/inventory/item/' + req.body.itemid);
+      }
+    }
+  };
+  async.parallel(getShipmentsAndItem, afterGet);
 };
 
 exports.categoryViewAll = function (req, res, next) {
@@ -298,17 +351,25 @@ exports.categoryCreateGet = function (req, res, next) {
 };
 
 exports.categoryCreatePut = [
+  (req, res, next) => {
+    if (req.body.parentCategory === 'None') req.body.parentCategory = null;
+    next();
+  },
+
   sanitizeBody('*').escape(),
 
   body('name', 'Name must not be empty').trim().isLength({ min: 1 }),
+  body('parentCategory').optional({ checkFalsy: true, nullable: true }),
 
   (req, res, next) => {
     const errors = validationResult(req);
 
     var category = new Category({
-      name: req.body.name,
-      parentCategory: req.body.parentCategory
+      name: req.body.name
     });
+    if (req.body.parentCategory !== '') {
+      category.parentCategory = req.body.parentCategory;
+    }
     if (!errors.isEmpty()) {
       var getCategories = {
         categories: function (cb) {
@@ -321,9 +382,10 @@ exports.categoryCreatePut = [
         res.render('categoryForm', {
           title: 'Create Category',
           categories: results.categories,
-          errors: errors,
+          errors: errors.array(),
           selected: category.parentCategory,
-          name: category.name
+          name: category.name,
+          selfID: null
         });
 
         async.parallel(getCategories, afterGet);
@@ -331,7 +393,7 @@ exports.categoryCreatePut = [
     } else {
       category.save(function (err) {
         if (err) next(err);
-        res.redirect(category.url);
+        else res.redirect(category.url);
       });
     }
   }
@@ -359,7 +421,6 @@ exports.categoryView = function (req, res, next) {
     if (results.category == null || results.category === undefined) {
       res.redirect('/inventory/categories');
     }
-    console.log(results.category);
 
     res.render('categoryView', {
       title: results.category.name,
@@ -373,17 +434,131 @@ exports.categoryView = function (req, res, next) {
 };
 
 exports.categoryUpdateGet = function (req, res, next) {
-  res.send('Category ' + req.params.id + ' Update GET UNDONE');
+  const getCategoryAndCategories = {
+    category: function (cb) {
+      Category.findById(req.params.id).exec(cb);
+    },
+    categories: function (cb) {
+      Category.find(cb);
+    }
+  };
+
+  const afterGet = function (err, results) {
+    if (err) next(err);
+    if (!results.category) res.redirect('/inventory/categories');
+    res.render('categoryForm', {
+      title: 'Update Category',
+      categories: results.categories,
+      selected: results.category.parentCategory,
+      selfID: results.category._id,
+      name: results.category.name,
+      errors: null
+    });
+  };
+
+  async.parallel(getCategoryAndCategories, afterGet);
 };
 
-exports.categoryUpdatePut = function (req, res, next) {
-  res.send('Category ' + req.params.id + ' Update POST UNDONE');
-};
+exports.categoryUpdatePut = [
+  sanitizeBody('*').escape(),
+
+  body('name', 'Name must not be empty').trim().isLength({ min: 1 }),
+
+  (req, res, next) => {
+    const errors = validationResult(req);
+
+    var category = new Category({
+      name: req.body.name,
+      parentCategory: req.body.parentCategory,
+      _id: req.params.id
+    });
+
+    if (!errors.isEmpty()) {
+      var getCategories = {
+        categories: function (cb) {
+          Category.find(cb);
+        }
+      };
+
+      var afterGet = function (err, results) {
+        if (err) next(err);
+        res.render('categoryForm', {
+          title: 'Create Category',
+          categories: results.categories,
+          errors: errors.array(),
+          selected: category.parentCategory,
+          name: category.name,
+          selfID: null
+        });
+
+        async.parallel(getCategories, afterGet);
+      };
+    } else {
+      Category.findByIdAndUpdate(req.params.id, category, {}, function (
+        err,
+        theCategory
+      ) {
+        if (err) next(err);
+        res.redirect(theCategory.url);
+      });
+    }
+  }
+];
 
 exports.categoryDeleteGet = function (req, res, next) {
-  res.send('Category ' + req.params.id + ' Delete GET UNDONE');
+  const getCategoryAndItems = {
+    category: function (cb) {
+      Category.findById(req.params.id).exec(cb);
+    },
+    items: function (cb) {
+      Item.find({ categories: req.params.id }).exec(cb);
+    }
+  };
+
+  const afterGet = function (err, results) {
+    if (err) next(err);
+
+    res.render('categoryDelete', {
+      title: 'Delete Category',
+      items: results.items,
+      category: results.category
+    });
+  };
+
+  async.parallel(getCategoryAndItems, afterGet);
 };
 
 exports.categoryDeletePut = function (req, res, next) {
-  res.send('Category ' + req.params.id + ' Delete POST UNDONE');
+  let error = null;
+  const getItems = {
+    items: function (cb) {
+      Item.find({ categories: req.params.id }).exec(cb);
+    }
+  };
+
+  const afterGet = function (err, results) {
+    error = err;
+    if (err) next(err);
+    else {
+      results.items.forEach((item) => {
+        for (let i = 0; i < item.categories.length; i++) {
+          if (item.categories[i] === req.params.id) {
+            item.categories.splice(i, 1);
+          }
+        }
+        Item.findByIdAndUpdate(item._id, item, {}, (err) => {
+          if (err) next(err);
+          error = err;
+        });
+      });
+    }
+    if (error == null) {
+      Category.findByIdAndDelete(req.body.categoryid, function (err) {
+        if (err) next(err);
+        res.redirect('/inventory/categories');
+      });
+    }
+  };
+
+  async.parallel(getItems, afterGet);
 };

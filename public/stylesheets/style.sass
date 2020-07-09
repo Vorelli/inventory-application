@@ -88,8 +88,22 @@ div.content
 	justify-content: flex-start
 	.back
 		text-align: left
+	.spacer
+		text-align: right
+	.back, .spacer, .title, .halfTitle
+		height: 56px
+		.link a
+			line-height: normal
+		a
+			line-height: 56px
 	.back, .spacer
 		width: 25%
+		.link
+			height: 50%
+			width: 100%
+			margin: auto
+			a.update
+				vertical-align: bottom
 	.back, .title
 		float: left
 	.title
@@ -163,15 +177,29 @@ table
 		border-bottom: 1px solid grey
 		td
 			padding: 5px
+		td.item
+			width: 80%
+		td.itemQ
+			width: 15%
+		td.addOrDel
+			width: 5%
+			button
+				width: 30px
+	tr.rowToClone
+		height: 30px
 
 form.delete
 	width: 100%
 	.formGroup
 		text-align: center !important
 form
+	width: 100%
 	.formGroup
+		width: 100%
 		text-align: left
 		margin: 10px 0px
+		input[type = 'date']
+			margin-left: 10px
 	.category
 		.subCategory
 			margin-left: 20px

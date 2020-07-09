@@ -5,6 +5,11 @@ block content
     .title
       h1= title
     div(style='color: red;width: 100%; text-align: center')= 'Are you sure you want to delete ' + item.name + '?'
+    if shipments.length
+      div(style='width: 100%; text-align: center')= "This will also get rid of this item from the following shipments:"
+      each shipment in shipments
+        .link(style='width: 100%; text-align: center')
+          a(href=shipment.url style='color: red')= shipment._id
     form(method='POST' action='').delete
       .formGroup
         input(type='hidden' name='itemid' required='true' value=item._id)

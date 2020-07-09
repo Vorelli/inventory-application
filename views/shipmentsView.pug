@@ -1,15 +1,19 @@
 extends layout
 
 block content
+  -console.log(shipment);
   .content
-    .title
+    .back
+      a(href=shipment.url + '/delete') Delete
+    .halfTitle
       h1= title
+    .spacer
+      a(href=shipment.url + '/update') Update
     table
       tbody
         tr
           td Item
           td Item Quantity
-        - console.log(shipment.items);
         each item, index in shipment.items
           tr 
             td

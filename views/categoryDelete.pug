@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  .content
+    .title
+      h1= title
+    div(style='color: red;width: 100%; text-align: center')= 'Are you sure you want to delete ' + category.name + '?'
+    if items.length
+      div(style='width: 100%; text-align: center')= "This will also get rid of this category from the following items:"
+      each item in items
+        .link(style='width: 100%; text-align: center')
+          a(href=item.url style='color: red')= item.name
+    form(method='POST' action='').delete
+      .formGroup
+        input(type='hidden' name='categoryid' required='true' value=category._id)
+      .formGroup
+        button(type='submit') Delete

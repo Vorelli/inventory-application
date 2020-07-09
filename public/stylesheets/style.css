@@ -86,8 +86,22 @@ div.content {
   justify-content: flex-start; }
   div.content .back {
     text-align: left; }
+  div.content .spacer {
+    text-align: right; }
+  div.content .back, div.content .spacer, div.content .title, div.content .halfTitle {
+    height: 56px; }
+    div.content .back .link a, div.content .spacer .link a, div.content .title .link a, div.content .halfTitle .link a {
+      line-height: normal; }
+    div.content .back a, div.content .spacer a, div.content .title a, div.content .halfTitle a {
+      line-height: 56px; }
   div.content .back, div.content .spacer {
     width: 25%; }
+    div.content .back .link, div.content .spacer .link {
+      height: 50%;
+      width: 100%;
+      margin: auto; }
+      div.content .back .link a.update, div.content .spacer .link a.update {
+        vertical-align: bottom; }
   div.content .back, div.content .title {
     float: left; }
   div.content .title {
@@ -161,17 +175,31 @@ table {
     border-bottom: 1px solid grey; }
     table tr td {
       padding: 5px; }
+    table tr td.item {
+      width: 80%; }
+    table tr td.itemQ {
+      width: 15%; }
+    table tr td.addOrDel {
+      width: 5%; }
+      table tr td.addOrDel button {
+        width: 30px; }
+  table tr.rowToClone {
+    height: 30px; }
 
 form.delete {
   width: 100%; }
   form.delete .formGroup {
     text-align: center !important; }
 
-form .formGroup {
-  text-align: left;
-  margin: 10px 0px; }
-
-form .category .subCategory {
-  margin-left: 20px; }
+form {
+  width: 100%; }
+  form .formGroup {
+    width: 100%;
+    text-align: left;
+    margin: 10px 0px; }
+    form .formGroup input[type='date'] {
+      margin-left: 10px; }
+  form .category .subCategory {
+    margin-left: 20px; }
 
 /*# sourceMappingURL=style.css.map */

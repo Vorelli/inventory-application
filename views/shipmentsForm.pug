@@ -1,0 +1,33 @@
+extends layout
+
+block content
+  .content
+    .title
+      h1= title
+    form(method="POST" action='')
+      .formGroup
+        label(for='date') Date of shipment:
+        input(type='date' name='date' value=shipment && shipment.dateFormatted)
+      .formGroup
+        table.shipmentItems
+          tr
+            td.item Item
+            td.itemQ Item Quantity
+            td.addOrDel
+              button(type='button' onclick="appendShipmentRow(1)") +
+          tr.rowToClone
+            td
+              select(name="item")
+                each item in inventory
+                  option(value=item._id id='a' + item._id)= item.name
+            td
+              input(name='itemQuantities' type='number' step='1' min='0' value=0)
+            td.addOrDel
+              button(type='button' onclick="deleteRow(this)") -
+      .formGroup
+        button(type='submit')= shipment ? 'Update' : 'Create'
+    if errors
+      ul.errors
+        each error in errors
+          li!= error.msg
+  script(src="/javascripts/appendShipmentRow.js" shipment=shipment)
