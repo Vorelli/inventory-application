@@ -253,11 +253,15 @@ exports.itemDeleteGet = function (req, res, next) {
   };
   const afterGet = function (err, results) {
     if (err) next(err);
-    res.render('itemDelete', {
-      title: 'Delete Item',
-      item: results.item,
-      shipments: results.shipments
-    });
+    else if (results.item == null || results.item === undefined) {
+      res.redirect('/inventory');
+    } else {
+      res.render('itemDelete', {
+        title: 'Delete Item',
+        item: results.item,
+        shipments: results.shipments
+      });
+    }
   };
   async.parallel(getItemAndShipments, afterGet);
 };
