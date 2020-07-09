@@ -5,6 +5,8 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var mongoose = require('mongoose');
 var sassMiddleware = require('node-sass-middleware');
+var compression = require('compression');
+var helmet = require('helmet');
 
 // require models to dodge errors
 require('./models/category');
@@ -17,6 +19,8 @@ var inventoryRouter = require('./routes/inventory');
 var shipmentsRouter = require('./routes/shipments');
 
 var app = express();
+
+app.use(helmet());
 
 var developmentDatabaseURL =
   'mongodb+srv://test:Password123!@cluster0.0mbuy.mongodb.net/inventory-application?retryWrites=true&w=majority';
@@ -41,6 +45,9 @@ app.use(
     sourceMap: true
   })
 );
+
+app.use(compression());
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
