@@ -11,7 +11,7 @@ Anyone can create, update, and delete the products as well as add tags.
 
 Use [node and node package manager](https://nodejs.org/en/) in order to install prerequisites and run the server.
 
-``bash
+```bash
 npm install
 npm run serverstart
 ```
